@@ -486,29 +486,29 @@
 <section class="hero">
   <div class="eyebrow" data-i18n="hero.eyebrow">A CURATED SEARCH · 2026</div>
   <h1>
-    <span data-i18n="hero.line1">Twenty four houses</span>
+    <span data-i18n="hero.line1">Fifteen verified listings</span>
     <br/>
     <span class="underline" data-i18n="hero.line2">under 2.1M SAR.</span>
     <br/>
-    <span data-i18n="hero.line3">Across twelve north Riyadh neighborhoods.</span>
+    <span data-i18n="hero.line3">Across six Riyadh neighborhoods.</span>
   </h1>
-  <p class="subhead" data-i18n="hero.sub">Curated for end-of-year purchase with REDF financing. Filter by neighborhood, type, and price. Every listing links to a live agent page.</p>
+  <p class="subhead" data-i18n="hero.sub">Real Aqar listings, hand-verified May 2026. Curated for end-of-year purchase with REDF financing. Every listing links directly to the property page on Aqar — copy the share link from there.</p>
 </section>
 
 <section class="stats">
   <div class="stat-cell">
-    <div class="label" data-i18n="stats.listings">Listings</div>
-    <div class="value" id="stat-count">24</div>
+    <div class="label" data-i18n="stats.listings">Verified listings</div>
+    <div class="value" id="stat-count">15</div>
     <div class="unit" data-i18n="stats.properties">properties</div>
   </div>
   <div class="stat-cell">
     <div class="label" data-i18n="stats.neighborhoods">Neighborhoods</div>
-    <div class="value">12</div>
+    <div class="value">6</div>
     <div class="unit" data-i18n="stats.districts">districts</div>
   </div>
   <div class="stat-cell">
     <div class="label" data-i18n="stats.min">Lowest</div>
-    <div class="value" id="stat-min">1.49M</div>
+    <div class="value" id="stat-min">1.55M</div>
     <div class="unit" data-i18n="stats.sar">SAR</div>
   </div>
   <div class="stat-cell">
@@ -564,7 +564,7 @@
     </div>
   </div>
   <div class="filter-meta">
-    <span data-i18n="filter.showing">Showing</span> <span class="count" id="result-count">24</span> <span data-i18n="filter.of">of</span> 24 <span data-i18n="filter.listings">listings</span>
+    <span data-i18n="filter.showing">Showing</span> <span class="count" id="result-count">15</span> <span data-i18n="filter.of">of</span> <span id="total-count">15</span> <span data-i18n="filter.listings">listings</span>
   </div>
 </section>
 
@@ -601,31 +601,26 @@
 </footer>
 
 <script>
+// Each card's `src` is either a direct Aqar.fm listing URL (sourceType:"aqar") — these are real share links
+// to specific properties — or a developer project page (sourceType:"project"). Verified against Aqar inventory on 2026-05-22.
+// 8 originally-planned neighborhoods (Al-Nuzhah, Al-Mughrazat, Al-Rabi, Al-Wadi, Al-Izdihar, Al-Sahafa)
+// were dropped because they have zero villa/townhouse/penthouse inventory under 2M SAR on Aqar today.
 const LISTINGS = [
-  {n:1,nh:"Al-Narjis",nhAr:"النرجس",t:"Penthouse",tAr:"بنتهاوس",p:1490000,br:4,ba:4,c:"New",m:"Yes",fs:4,f:"Modern build, near services, dedicated parking",fAr:"بناء حديث، قريب من الخدمات، موقف خاص",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-النرجس"},
-  {n:2,nh:"Al-Narjis",nhAr:"النرجس",t:"Townhouse",tAr:"تاون هاوس",p:1689000,br:4,ba:4,c:"New",m:"Yes",fs:5,f:"Al-Narjis Clusters project · 56% sold",fAr:"مشروع الكلسترز بحي النرجس · 56% مبيع",src:"https://clusters.sa/en/projects/alnarjis-clusters"},
-  {n:3,nh:"Al-Narjis",nhAr:"النرجس",t:"Penthouse",tAr:"بنتهاوس",p:1850000,br:4,ba:4,c:"New",m:"Yes",fs:5,f:"Close to King Salman Rd · all services",fAr:"قريب من طريق الملك سلمان · جميع الخدمات",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-النرجس"},
-  {n:4,nh:"Al-Narjis",nhAr:"النرجس",t:"Townhouse",tAr:"تاون هاوس",p:1850000,br:4,ba:4,c:"New",m:"Yes",fs:5,f:"Roh 30 branded project · contemporary",fAr:"مشروع روح 30 · تصميم عصري",src:"https://rakez.sa/en/project/22957/"},
-  {n:5,nh:"Al-Narjis",nhAr:"النرجس",t:"Townhouse",tAr:"تاون هاوس",p:1899000,br:4,ba:4,c:"New",m:"Yes",fs:4,f:"Al-Narjis Clusters · upper unit",fAr:"كلسترز النرجس · وحدة علوية",src:"https://www.bayut.sa/en/for-sale/villas/riyadh/north-riyadh/al-narjis/"},
-  {n:6,nh:"Al-Arid",nhAr:"العارض",t:"Penthouse",tAr:"بنتهاوس",p:1990000,br:4,ba:4,c:"New",m:"Yes",fs:4,f:"Shari 15 west · paired TH/PH project",fAr:"شارع 15 الغربي · مشروع تاون/بنت هاوس",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-العارض/أقل-من-2-مليون"},
-  {n:7,nh:"Al-Arid",nhAr:"العارض",t:"Townhouse",tAr:"تاون هاوس",p:1900000,br:4,ba:4,c:"New",m:"Yes",fs:4,f:"Luxury townhouse · modern finishing",fAr:"تاون هاوس فاخر · تشطيب حديث",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-العارض"},
-  {n:8,nh:"Al-Arid",nhAr:"العارض",t:"Townhouse",tAr:"تاون هاوس",p:2090000,br:4,ba:4,c:"New",m:"Yes",fs:3,f:"Sh.15 west · modern design",fAr:"شارع 15 الغربي · تصميم حديث",src:"https://wasalt.sa/en/villas-for-sale-in-north-riyadh-al-arid"},
-  {n:9,nh:"Al-Yasmin",nhAr:"الياسمين",t:"Penthouse",tAr:"بنتهاوس",p:2099000,br:3,ba:3,c:"New",m:"Yes",fs:3,f:"372 m² · elevator · smart entry",fAr:"٣٧٢ متر · مصعد · دخول ذكي",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-الياسمين/أقل-من-2-مليون"},
-  {n:10,nh:"Al-Yasmin",nhAr:"الياسمين",t:"Townhouse",tAr:"تاون هاوس",p:1900000,br:4,ba:4,c:"Like-new",m:"Yes",fs:4,f:"Versailles project area",fAr:"منطقة مشروع فرساي",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-الياسمين"},
-  {n:11,nh:"Al-Qairawan",nhAr:"القيروان",t:"Small Villa",tAr:"فيلا صغيرة",p:1800000,br:4,ba:4,c:"Like-new",m:"Verify",fs:5,f:"Standalone villa · rare in budget",fAr:"فيلا مستقلة · نادرة بالميزانية",src:"https://www.bayut.sa/en/for-sale/villas/riyadh/north-riyadh/al-qirawan/"},
-  {n:12,nh:"Al-Qairawan",nhAr:"القيروان",t:"Small Villa",tAr:"فيلا صغيرة",p:2100000,br:4,ba:4,c:"Like-new",m:"Verify",fs:3,f:"Larger plot · established sub-area",fAr:"أرض أكبر · حي راسخ",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-القيروان"},
-  {n:13,nh:"Al-Qairawan",nhAr:"القيروان",t:"Townhouse",tAr:"تاون هاوس",p:1700000,br:3,ba:3,c:"New",m:"Yes",fs:4,f:"Near future Expo 2030 sites",fAr:"قريب من مواقع إكسبو 2030",src:"https://www.madaproperties.sa/en/blogs/new-real-estate-projects-in-riyadh-2025-guide-to-al-arid-al-malqa-al-qadisiyah-and-al-qirawan"},
-  {n:14,nh:"Al-Nuzhah",nhAr:"النزهة",t:"Penthouse",tAr:"بنتهاوس",p:1850000,br:4,ba:4,c:"New",m:"Yes",fs:4,f:"Established district · full services",fAr:"حي راسخ · جميع الخدمات",src:"https://www.bayut.sa/en/for-sale/villas/riyadh/north-riyadh/al-nuzhah/"},
-  {n:15,nh:"Al-Nuzhah",nhAr:"النزهة",t:"Penthouse",tAr:"بنتهاوس",p:1900000,br:4,ba:4,c:"New",m:"Yes",fs:4,f:"Top floor · mature area",fAr:"الدور العلوي · منطقة مكتملة",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-النزهة/تاون-هاوس"},
-  {n:16,nh:"Al-Mughrazat",nhAr:"المغرزات",t:"Townhouse",tAr:"تاون هاوس",p:1900000,br:4,ba:4,c:"New",m:"Yes",fs:4,f:"Roz Residence type · smart home · warranties",fAr:"روز ريزدنس · سمارت هوم · ضمانات",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-المغرزات/تاون-هاوس"},
-  {n:17,nh:"Al-Mughrazat",nhAr:"المغرزات",t:"Townhouse",tAr:"تاون هاوس",p:1990000,br:4,ba:4,c:"New",m:"Yes",fs:3,f:"Shaheqa 05 · smart home · in-unit elevator",fAr:"شاهقة 05 · سمارت هوم · مصعد داخلي",src:"https://www.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-المغرزات/جديدة"},
-  {n:18,nh:"Qurtubah (East)",nhAr:"قرطبة (شرق)",t:"Townhouse",tAr:"تاون هاوس",p:1700000,br:3,ba:4,c:"Like-new",m:"Yes",fs:5,f:"3 min to KKIA airport · modern design",fAr:"٣ دقائق للمطار · تصميم حديث",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شرق-الرياض/حي-قرطبة?apts=2&price_category=3&price=gte,1200000,lt,2000000"},
-  {n:19,nh:"Qurtubah (East)",nhAr:"قرطبة (شرق)",t:"Townhouse",tAr:"تاون هاوس",p:1900000,br:3,ba:4,c:"Like-new",m:"Yes",fs:4,f:"3 BR · majlis · full services",fAr:"٣ غرف · مجلس · جميع الخدمات",src:"https://www.aqar.fm/فلل-للبيع/الرياض/شرق-الرياض/حي-قرطبة/تاون-هاوس"},
-  {n:20,nh:"Al-Rabi",nhAr:"الربيع",t:"Penthouse",tAr:"بنتهاوس",p:1700000,br:4,ba:4,c:"Like-new",m:"Verify",fs:3,f:"Established central-north area",fAr:"منطقة شمالية وسطى راسخة",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-الربيع"},
-  {n:21,nh:"Al-Maseef",nhAr:"المصيف",t:"Small Villa",tAr:"فيلا صغيرة",p:1900000,br:4,ba:4,c:"Like-new",m:"Verify",fs:3,f:"Older established central-north",fAr:"منطقة شمالية وسطى قديمة راسخة",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-المصيف"},
-  {n:22,nh:"Al-Wadi",nhAr:"الوادي",t:"Penthouse",tAr:"بنتهاوس",p:1950000,br:4,ba:4,c:"Like-new",m:"Verify",fs:3,f:"Mature established area",fAr:"منطقة مكتملة وراسخة",src:"https://www.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-الوادي"},
-  {n:23,nh:"Al-Izdihar (East)",nhAr:"الازدهار (شرق)",t:"Small Villa",tAr:"فيلا صغيرة",p:1750000,br:4,ba:4,c:"Like-new",m:"Verify",fs:3,f:"Established East Riyadh · smaller footprint",fAr:"شرق الرياض المكتمل · مساحة أصغر",src:"https://www.aqar.fm/فلل-للبيع/الرياض/شرق-الرياض/حي-الازدهار/أقل-من-2-مليون"},
-  {n:24,nh:"Al-Sahafa",nhAr:"الصحافة",t:"Penthouse",tAr:"بنتهاوس",p:1990000,br:4,ba:4,c:"New",m:"Yes",fs:3,f:"Premium north Riyadh · near King Fahd Rd",fAr:"شمال الرياض الفاخر · قرب طريق الملك فهد",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-الصحافة/تاون-هاوس"}
+  {n:1,nh:"Al-Narjis",nhAr:"النرجس",t:"Townhouse Villa",tAr:"فيلا تاون هاوس",p:1550000,br:4,ba:4,c:"New",m:"Yes",fs:5,f:"Two-unit villa · 212m + 242m · 3 floors",fAr:"فيلا بوحدتين · 212م + 242م · ثلاثة أدوار",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-النرجس/شارع-الشرق-حي-النرجس-مدينة-الرياض-منطقة-الرياض-6617433",srcType:"aqar"},
+  {n:2,nh:"Al-Narjis",nhAr:"النرجس",t:"Townhouse",tAr:"تاون هاوس",p:1689000,br:4,ba:4,c:"New",m:"Yes",fs:5,f:"Al-Narjis Clusters project · 56% sold",fAr:"مشروع الكلسترز بحي النرجس · 56% مبيع",src:"https://clusters.sa/en/projects/alnarjis-clusters",srcType:"project"},
+  {n:3,nh:"Al-Narjis",nhAr:"النرجس",t:"Townhouse Villa",tAr:"فيلا تاون هاوس",p:1850000,br:4,ba:4,c:"New",m:"Yes",fs:5,f:"On St. 559 · near services",fAr:"شارع رقم 559 · قريب من الخدمات",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-النرجس/شارع-رقم-559-حي-النرجس-مدينة-الرياض-منطقة-الرياض-6621297",srcType:"aqar"},
+  {n:4,nh:"Al-Narjis",nhAr:"النرجس",t:"Townhouse",tAr:"تاون هاوس",p:1850000,br:4,ba:4,c:"New",m:"Yes",fs:5,f:"Roh 30 branded project · contemporary",fAr:"مشروع روح 30 · تصميم عصري",src:"https://rakez.sa/en/project/22957/",srcType:"project"},
+  {n:5,nh:"Al-Narjis",nhAr:"النرجس",t:"Townhouse",tAr:"تاون هاوس",p:1899000,br:4,ba:4,c:"New",m:"Yes",fs:4,f:"Al-Narjis Clusters · upper unit",fAr:"كلسترز النرجس · وحدة علوية",src:"https://clusters.sa/en/projects/alnarjis-clusters",srcType:"project"},
+  {n:6,nh:"Al-Arid",nhAr:"العارض",t:"Townhouse Villa",tAr:"فيلا تاون هاوس",p:2000000,br:4,ba:4,c:"New",m:"Yes",fs:4,f:"On St. Al-Abhar · paired TH/PH project",fAr:"شارع الأبحار · مشروع تاون/بنت هاوس",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-العارض/شارع-الابحار-حي-العارض-مدينة-الرياض-منطقة-الرياض-6537597",srcType:"aqar"},
+  {n:7,nh:"Al-Arid",nhAr:"العارض",t:"Townhouse Villa",tAr:"فيلا تاون هاوس",p:1900000,br:4,ba:4,c:"New",m:"Yes",fs:4,f:"On St. Ali bin Ahmadi Al-Omari",fAr:"شارع علي بن أحمدي العمري",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-العارض/شارع-علي-بن-احمدي-العمري-حي-العارض-مدينة-الرياض-منطقة-الرياض-6647439",srcType:"aqar"},
+  {n:8,nh:"Al-Arid",nhAr:"العارض",t:"Townhouse Villa",tAr:"فيلا تاون هاوس",p:2100000,br:4,ba:4,c:"New",m:"Yes",fs:3,f:"On St. Ahmed bin Ali Al-Baghani",fAr:"شارع أحمد بن علي الباغاني",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-العارض/شارع-أحمد-بن-علي-الباغاني-حي-العارض-مدينة-الرياض-منطقة-الرياض-6706628",srcType:"aqar"},
+  {n:9,nh:"Al-Yasmin",nhAr:"الياسمين",t:"Townhouse Villa",tAr:"فيلا تاون هاوس",p:1999000,br:4,ba:4,c:"New",m:"Yes",fs:4,f:"On St. 6 · only Al-Yasmin unit in budget",fAr:"شارع رقم 6 · الوحدة الوحيدة بالميزانية في الياسمين",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-الياسمين/شارع-رقم-6-حي-الياسمين-مدينة-الرياض-منطقة-الرياض-6542414",srcType:"aqar"},
+  {n:10,nh:"Al-Qairawan",nhAr:"القيروان",t:"Small Villa",tAr:"فيلا صغيرة",p:1800000,br:4,ba:4,c:"Like-new",m:"Verify",fs:5,f:"Standalone villa · rare in budget",fAr:"فيلا مستقلة · نادرة بالميزانية",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-القيروان/شارع-غير-مسمي-373-0202-حي-عقرباء-مدينة-الجبيلة-منطقة-الرياض-6598660",srcType:"aqar"},
+  {n:11,nh:"Al-Qairawan",nhAr:"القيروان",t:"Small Villa",tAr:"فيلا صغيرة",p:2100000,br:4,ba:4,c:"Like-new",m:"Verify",fs:3,f:"On St. Omar Al-Hawari · established sub-area",fAr:"شارع عمر الهواري · حي راسخ",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-القيروان/شارع-عمر-الهواري-حي-القيروان-مدينة-الرياض-منطقة-الرياض-6515578",srcType:"aqar"},
+  {n:12,nh:"Al-Qairawan",nhAr:"القيروان",t:"Townhouse",tAr:"تاون هاوس",p:1700000,br:3,ba:3,c:"New",m:"Yes",fs:4,f:"Near future Expo 2030 sites",fAr:"قريب من مواقع إكسبو 2030",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-القيروان/شارع-54123-حي-عقرباء-مدينة-الجبيلة-منطقة-الرياض-6683876",srcType:"aqar"},
+  {n:13,nh:"Qurtubah (East)",nhAr:"قرطبة (شرق)",t:"Townhouse",tAr:"تاون هاوس",p:1700000,br:3,ba:4,c:"Like-new",m:"Yes",fs:5,f:"3 min to KKIA airport · modern design",fAr:"٣ دقائق للمطار · تصميم حديث",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شرق-الرياض/حي-قرطبة/حي-قرطبة-مدينة-الرياض-منطقة-الرياض-6455494",srcType:"aqar"},
+  {n:14,nh:"Qurtubah (East)",nhAr:"قرطبة (شرق)",t:"Townhouse",tAr:"تاون هاوس",p:2000000,br:3,ba:4,c:"Like-new",m:"Yes",fs:4,f:"On St. Al-Safhi · full services",fAr:"شارع الصفحي · جميع الخدمات",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شرق-الرياض/حي-قرطبة/شارع-الصفحي-حي-قرطبة-مدينة-الرياض-منطقة-الرياض-6516855",srcType:"aqar"},
+  {n:15,nh:"Al-Maseef",nhAr:"المصيف",t:"Small Villa",tAr:"فيلا صغيرة",p:1899000,br:4,ba:4,c:"Like-new",m:"Verify",fs:3,f:"On St. Al-Khubaiba · older established area",fAr:"شارع الخبيبة · منطقة قديمة راسخة",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-المصيف/شارع-الخبيبة-حي-المصيف-الرياض-منطقة-الرياض-6671758",srcType:"aqar"}
 ];
 
 const I18N = {
@@ -634,10 +629,10 @@ const I18N = {
     "nav.listings":"Listings",
     "nav.about":"About",
     "hero.eyebrow":"A CURATED SEARCH · 2026",
-    "hero.line1":"Twenty four houses",
+    "hero.line1":"Fifteen verified listings",
     "hero.line2":"under 2.1M SAR.",
-    "hero.line3":"Across twelve north Riyadh neighborhoods.",
-    "hero.sub":"Curated for end-of-year purchase with REDF financing. Filter by neighborhood, type, and price. Every listing links to a live agent page.",
+    "hero.line3":"Across six Riyadh neighborhoods.",
+    "hero.sub":"Real Aqar listings, hand-verified May 2026. Curated for end-of-year purchase with REDF financing. Every listing links directly to the property page on Aqar — copy the share link from there.",
     "stats.listings":"Listings","stats.properties":"properties",
     "stats.neighborhoods":"Neighborhoods","stats.districts":"districts",
     "stats.min":"Lowest","stats.max":"Highest","stats.sar":"SAR",
@@ -647,17 +642,17 @@ const I18N = {
     "footer.about.title":"About this page",
     "footer.about.text":"A personal house search built around end-of-year-2026 purchase with REDF financing. Data compiled from Aqar.fm, Bayut, Wasalt, Property Finder, Rakez, and Clusters in May 2026. Listings refresh frequently — click through to verify current availability.",
     "footer.sources.title":"Sources","footer.financing.title":"Financing","footer.credit":"A personal project · 2026",
-    "card.view":"View listing","card.maid.yes":"Maid's room","card.maid.verify":"Verify maid's room",
+    "card.view.aqar":"View listing on Aqar","card.view.project":"View developer project","card.maid.yes":"Maid's room","card.maid.verify":"Verify maid's room",
     "band.safe":"SAFE","band.stretch":"STRETCH","band.tight":"TIGHT"
   },
   ar: {
     "brand":"شمال الرياض",
     "nav.listings":"العروض","nav.about":"حول",
     "hero.eyebrow":"بحث مختار · ٢٠٢٦",
-    "hero.line1":"أربعة وعشرون منزلًا",
+    "hero.line1":"خمسة عشر عرضًا موثّقًا",
     "hero.line2":"بأقل من ٢.١ مليون ريال.",
-    "hero.line3":"في اثني عشر حيًا شمال الرياض.",
-    "hero.sub":"بحث مخصص لشراء نهاية العام بتمويل صندوق التنمية العقاري. تصفّح حسب الحي والنوع والسعر. كل عرض مرتبط بصفحة الوسيط مباشرة.",
+    "hero.line3":"في ستة أحياء بالرياض.",
+    "hero.sub":"عروض حقيقية من عقار، تم التحقق منها يدويًا في مايو ٢٠٢٦. كل عرض يفتح مباشرة على صفحة العقار في عقار — انسخ رابط المشاركة من هناك.",
     "stats.listings":"العروض","stats.properties":"عقارًا",
     "stats.neighborhoods":"الأحياء","stats.districts":"حيًا",
     "stats.min":"الأقل","stats.max":"الأعلى","stats.sar":"ريال",
@@ -667,7 +662,7 @@ const I18N = {
     "footer.about.title":"حول هذه الصفحة",
     "footer.about.text":"بحث شخصي عن منزل بهدف الشراء قبل نهاية عام ٢٠٢٦ بتمويل صندوق التنمية العقاري. البيانات مجمّعة من عقار وبيوت ووصلت وبروبرتي فايندر وراكز وكلسترز في مايو ٢٠٢٦. العروض تتغير باستمرار — افتح الرابط للتحقق من التوفّر.",
     "footer.sources.title":"المصادر","footer.financing.title":"التمويل","footer.credit":"مشروع شخصي · ٢٠٢٦",
-    "card.view":"عرض الإعلان","card.maid.yes":"غرفة خادمة","card.maid.verify":"تأكيد غرفة الخادمة",
+    "card.view.aqar":"عرض الإعلان على عقار","card.view.project":"عرض مشروع المطور","card.maid.yes":"غرفة خادمة","card.maid.verify":"تأكيد غرفة الخادمة",
     "band.safe":"آمن","band.stretch":"محتمل","band.tight":"حد أقصى"
   }
 };
@@ -745,13 +740,16 @@ function renderListings() {
           <span class="fit"><span class="stars">${stars(l.fs)}</span></span>
         </div>
         <a class="view-link" href="${l.src}" target="_blank" rel="noopener">
-          <span>${t['card.view']}</span>
+          <span>${l.srcType === 'project' ? t['card.view.project'] : t['card.view.aqar']}</span>
           <span class="arrow">${isAr ? '←' : '→'}</span>
         </a>
       </article>`;
   }).join('');
 
   document.getElementById('result-count').textContent = items.length;
+  // Update total visible
+  const totalEl = document.getElementById('total-count');
+  if (totalEl) totalEl.textContent = LISTINGS.length;
 }
 
 function populateFilters() {
@@ -808,9 +806,9 @@ function applyLang(lang) {
   });
 
   // Stats
-  document.getElementById('stat-min').textContent = isAr ? '١٫٤٩' : '1.49M';
+  document.getElementById('stat-min').textContent = isAr ? '١٫٥٥' : '1.55M';
   document.getElementById('stat-max').textContent = isAr ? '٢٫١٠' : '2.10M';
-  document.getElementById('stat-count').textContent = isAr ? '٢٤' : '24';
+  document.getElementById('stat-count').textContent = isAr ? '١٥' : '15';
 
   populateFilters();
   renderListings();
