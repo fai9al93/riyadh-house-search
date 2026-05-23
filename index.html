@@ -774,6 +774,7 @@
     <div class="filter-group">
       <label data-i18n="filter.sort">Sort</label>
       <select id="filter-sort">
+        <option value="newest">Newest First</option>
         <option value="fit">Best Fit</option>
         <option value="price-asc">Price · Low to High</option>
         <option value="price-desc">Price · High to Low</option>
@@ -903,7 +904,7 @@ const I18N = {
 };
 
 let currentLang = 'en';
-let activeFilters = { neighborhood: '', type: '', price: '', maid: '', sort: 'fit' };
+let activeFilters = { neighborhood: '', type: '', price: '', maid: '', sort: 'newest' };
 
 function fmtPrice(p) {
   if (currentLang === 'ar') {
@@ -936,7 +937,8 @@ function renderListings() {
   if (activeFilters.maid) items = items.filter(l => l.m === activeFilters.maid);
 
   const sort = activeFilters.sort;
-  if (sort === 'fit') items.sort((a,b) => b.fs - a.fs || a.p - b.p);
+  if (sort === 'newest') items.sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||'') || b.id - a.id);
+  else if (sort === 'fit') items.sort((a,b) => b.fs - a.fs || a.p - b.p);
   else if (sort === 'price-asc') items.sort((a,b) => a.p - b.p);
   else if (sort === 'price-desc') items.sort((a,b) => b.p - a.p);
   else if (sort === 'neigh') items.sort((a,b) => (currentLang==='ar'?a.nhAr:a.nh).localeCompare(currentLang==='ar'?b.nhAr:b.nh));
@@ -1022,6 +1024,7 @@ function populateFilters() {
 
   const sSel = document.getElementById('filter-sort');
   sSel.innerHTML = `
+    <option value="newest" ${activeFilters.sort==='newest'?'selected':''}>${isAr ? 'الأحدث أولًا' : 'Newest First'}</option>
     <option value="fit" ${activeFilters.sort==='fit'?'selected':''}>${isAr ? 'الأفضل' : 'Best Fit'}</option>
     <option value="price-asc" ${activeFilters.sort==='price-asc'?'selected':''}>${isAr ? 'السعر · الأقل للأعلى' : 'Price · Low to High'}</option>
     <option value="price-desc" ${activeFilters.sort==='price-desc'?'selected':''}>${isAr ? 'السعر · الأعلى للأقل' : 'Price · High to Low'}</option>
@@ -1101,7 +1104,7 @@ async function loadListings() {
     </div>`;
   try {
     const seenFilter = viewMode === 'seen' ? 'seen_at=not.is.null' : 'seen_at=is.null';
-    const sortBy = viewMode === 'seen' ? 'seen_at.desc' : 'fit_score.desc,price.asc';
+    const sortBy = viewMode === 'seen' ? 'seen_at.desc' : 'created_at.desc';
     const url = `/rest/v1/listings?active=eq.true&${seenFilter}&select=*&order=${sortBy}`;
     const res = await sbFetch(url);
     if (!res.ok) throw new Error('Supabase ' + res.status);
@@ -1123,7 +1126,8 @@ async function loadListings() {
       fAr: row.features_ar || '',
       src: row.source_url,
       srcType: row.source_type,
-      seenAt: row.seen_at
+      seenAt: row.seen_at,
+      createdAt: row.created_at
     }));
     loadCounts(); // refresh counters in background
     return true;
