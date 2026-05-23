@@ -893,7 +893,7 @@ function renderListings() {
           </div>
         </div>
         <div class="meta">
-          <span class="maid ${l.m.toLowerCase()}">${l.m === 'Yes' ? t['card.maid.yes'] : t['card.maid.verify']}</span>
+          ${l.m === 'No' ? '<span></span>' : `<span class="maid ${l.m.toLowerCase()}">${l.m === 'Yes' ? t['card.maid.yes'] : t['card.maid.verify']}</span>`}
           <span class="fit"><span class="stars">${stars(l.fs)}</span></span>
         </div>
         <a class="view-link" href="${l.src}" target="_blank" rel="noopener">
