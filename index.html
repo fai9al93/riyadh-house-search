@@ -456,6 +456,52 @@
   /* HIDDEN */
   .hidden { display: none !important; }
 
+  /* PULL TO REFRESH */
+  .ptr {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 0;
+    background: var(--bg);
+    z-index: 200;
+    overflow: hidden;
+    transition: height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .ptr.pulling { transition: none; }
+  .ptr.refreshing { height: 64px !important; }
+  .ptr-inner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 14px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .ptr.pulling .ptr-inner,
+  .ptr.refreshing .ptr-inner { opacity: 1; }
+  .ptr-spinner {
+    width: 14px; height: 14px;
+    border: 2px solid var(--text-faint);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    transform-origin: center;
+  }
+  .ptr.refreshing .ptr-spinner { animation: ptr-spin 0.8s linear infinite; }
+  .ptr.pulling .ptr-spinner {
+    transform: rotate(calc(var(--ptr-pct, 0) * 270deg));
+    border-top-color: var(--accent);
+  }
+  @keyframes ptr-spin { to { transform: rotate(360deg); } }
+  .ptr-label[data-state="refreshing"] { color: var(--accent); }
+
   /* RTL adjustments */
   [data-dir="rtl"] .hero h1,
   [data-dir="rtl"] .filter-section h2 { text-align: right; }
@@ -567,6 +613,13 @@
 </head>
 <body>
 
+<div class="ptr" id="ptr">
+  <div class="ptr-inner">
+    <div class="ptr-spinner"></div>
+    <span class="ptr-label" id="ptr-label" data-i18n="ptr.pull">Pull to refresh</span>
+  </div>
+</div>
+
 <nav>
   <div class="nav-inner">
     <div class="brand"><span class="dot"></span><span data-i18n="brand">RIYADH NORTH</span></div>
@@ -584,7 +637,7 @@
 <section class="hero">
   <div class="eyebrow" data-i18n="hero.eyebrow">A CURATED SEARCH · 2026</div>
   <h1>
-    <span data-i18n="hero.line1">Fifteen verified listings</span>
+    <span data-i18n="hero.line1">Verified listings</span>
     <br/>
     <span class="underline" data-i18n="hero.line2">under 2.1M SAR.</span>
     <br/>
@@ -731,7 +784,7 @@ const I18N = {
     "nav.listings":"Listings",
     "nav.about":"About",
     "hero.eyebrow":"A CURATED SEARCH · 2026",
-    "hero.line1":"Fifteen verified listings",
+    "hero.line1":"Verified listings",
     "hero.line2":"under 2.1M SAR.",
     "hero.line3":"Across six Riyadh neighborhoods.",
     "hero.sub":"Real Aqar listings, hand-verified May 2026. Curated for end-of-year purchase with REDF financing. Every listing links directly to the property page on Aqar — copy the share link from there.",
@@ -745,13 +798,14 @@ const I18N = {
     "footer.about.text":"A personal house search built around end-of-year-2026 purchase with REDF financing. Data compiled from Aqar.fm, Bayut, Wasalt, Property Finder, Rakez, and Clusters in May 2026. Listings refresh frequently — click through to verify current availability.",
     "footer.sources.title":"Sources","footer.financing.title":"Financing","footer.credit":"A personal project · 2026",
     "card.view.aqar":"View listing on Aqar","card.view.project":"View developer project","card.maid.yes":"Maid's room","card.maid.verify":"Verify maid's room",
+    "ptr.pull":"Pull to refresh","ptr.release":"Release to refresh","ptr.refreshing":"Refreshing…","ptr.done":"Updated",
     "band.safe":"SAFE","band.stretch":"STRETCH","band.tight":"TIGHT"
   },
   ar: {
     "brand":"شمال الرياض",
     "nav.listings":"العروض","nav.about":"حول",
     "hero.eyebrow":"بحث مختار · ٢٠٢٦",
-    "hero.line1":"خمسة عشر عرضًا موثّقًا",
+    "hero.line1":"عروض موثّقة",
     "hero.line2":"بأقل من ٢.١ مليون ريال.",
     "hero.line3":"في ستة أحياء بالرياض.",
     "hero.sub":"عروض حقيقية من عقار، تم التحقق منها يدويًا في مايو ٢٠٢٦. كل عرض يفتح مباشرة على صفحة العقار في عقار — انسخ رابط المشاركة من هناك.",
@@ -765,6 +819,7 @@ const I18N = {
     "footer.about.text":"بحث شخصي عن منزل بهدف الشراء قبل نهاية عام ٢٠٢٦ بتمويل صندوق التنمية العقاري. البيانات مجمّعة من عقار وبيوت ووصلت وبروبرتي فايندر وراكز وكلسترز في مايو ٢٠٢٦. العروض تتغير باستمرار — افتح الرابط للتحقق من التوفّر.",
     "footer.sources.title":"المصادر","footer.financing.title":"التمويل","footer.credit":"مشروع شخصي · ٢٠٢٦",
     "card.view.aqar":"عرض الإعلان على عقار","card.view.project":"عرض مشروع المطور","card.maid.yes":"غرفة خادمة","card.maid.verify":"تأكيد غرفة الخادمة",
+    "ptr.pull":"اسحب للتحديث","ptr.release":"اترك للتحديث","ptr.refreshing":"جارٍ التحديث…","ptr.done":"تم التحديث",
     "band.safe":"آمن","band.stretch":"محتمل","band.tight":"حد أقصى"
   }
 };
@@ -986,6 +1041,75 @@ function updateStats() {
   document.getElementById('stat-count').textContent = isAr ? toArNum(count) : count;
   document.getElementById('stat-neighborhoods').textContent = isAr ? toArNum(neigh) : neigh;
 }
+
+// ===== Pull to refresh =====
+(function initPullToRefresh() {
+  const ptr = document.getElementById('ptr');
+  const label = document.getElementById('ptr-label');
+  const THRESHOLD = 70;   // px pull distance to trigger refresh
+  const MAX_PULL = 110;   // visual cap
+  let startY = null;
+  let dy = 0;
+  let isRefreshing = false;
+
+  function setLabel(state) {
+    label.setAttribute('data-state', state);
+    const map = { pull: 'ptr.pull', release: 'ptr.release', refreshing: 'ptr.refreshing', done: 'ptr.done' };
+    label.textContent = I18N[currentLang][map[state]] || state;
+  }
+
+  document.addEventListener('touchstart', e => {
+    if (isRefreshing) return;
+    if (window.scrollY > 0) return;
+    startY = e.touches[0].clientY;
+    dy = 0;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', e => {
+    if (isRefreshing || startY === null) return;
+    if (window.scrollY > 0) { startY = null; return; }
+    const cur = e.touches[0].clientY;
+    dy = Math.max(0, cur - startY);
+    if (dy > 0) {
+      const visible = Math.min(dy * 0.55, MAX_PULL);
+      ptr.classList.add('pulling');
+      ptr.style.height = visible + 'px';
+      const pct = Math.min(visible / THRESHOLD, 1);
+      ptr.style.setProperty('--ptr-pct', pct.toFixed(2));
+      setLabel(visible >= THRESHOLD ? 'release' : 'pull');
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchend', async () => {
+    if (isRefreshing || startY === null) return;
+    const triggered = dy * 0.55 >= THRESHOLD;
+    ptr.classList.remove('pulling');
+    startY = null;
+
+    if (!triggered) {
+      ptr.style.height = '';
+      return;
+    }
+
+    isRefreshing = true;
+    ptr.classList.add('refreshing');
+    setLabel('refreshing');
+    try {
+      await loadListings();
+      applyLang(currentLang);
+      setLabel('done');
+      setTimeout(() => {
+        ptr.classList.remove('refreshing');
+        ptr.style.height = '';
+        isRefreshing = false;
+      }, 600);
+    } catch (e) {
+      ptr.classList.remove('refreshing');
+      ptr.style.height = '';
+      isRefreshing = false;
+    }
+  });
+})();
 
 (async () => {
   await loadListings();
