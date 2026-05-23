@@ -384,7 +384,13 @@
     color: var(--text-dim);
   }
   .card .fit .stars { color: var(--accent); }
+  .card .actions {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+  }
   .card .view-link {
+    flex: 1;
     display: inline-flex;
     align-items: center;
     justify-content: space-between;
@@ -397,6 +403,67 @@
     font-weight: 500;
     transition: all 0.2s;
     font-family: inherit;
+  }
+  .card .seen-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    border-radius: 999px;
+    padding: 0 16px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .card .seen-btn:hover {
+    color: var(--text);
+    border-color: var(--border-hover);
+    background: var(--bg-elev);
+  }
+  .card .seen-btn.unseen-btn {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .card .seen-btn.unseen-btn:hover {
+    background: var(--accent-soft);
+  }
+  .card.seen { opacity: 0.55; }
+  .card.fade-out {
+    opacity: 0;
+    transform: scale(0.96);
+    transition: all 0.3s ease;
+    pointer-events: none;
+  }
+
+  /* Inbox toggle in filter meta */
+  .inbox-toggle {
+    display: inline-flex;
+    margin-inline-start: 12px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .inbox-toggle button {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    padding: 6px 14px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .inbox-toggle button.active {
+    background: var(--text);
+    color: var(--bg);
+  }
+  .inbox-toggle button:hover:not(.active) {
+    color: var(--text);
   }
   .card .view-link:hover {
     background: var(--text);
@@ -716,6 +783,10 @@
   </div>
   <div class="filter-meta">
     <span data-i18n="filter.showing">Showing</span> <span class="count" id="result-count">15</span> <span data-i18n="filter.of">of</span> <span id="total-count">15</span> <span data-i18n="filter.listings">listings</span>
+    <span class="inbox-toggle">
+      <button data-inbox-btn="unseen" class="active" id="btn-unseen"><span data-i18n="inbox.unseen">Unseen</span> · <span id="cnt-unseen">—</span></button>
+      <button data-inbox-btn="seen" id="btn-seen"><span data-i18n="inbox.seen">Seen</span> · <span id="cnt-seen">—</span></button>
+    </span>
   </div>
 </section>
 
@@ -758,7 +829,10 @@
 const SUPABASE_URL = 'https://rktlkofaoiwpfysplukg.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrdGxrb2Zhb2l3cGZ5c3BsdWtnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MzU2NDMsImV4cCI6MjA5NTExMTY0M30.VlBMDdGeJQZ5wQkFmhhIrWVhgxYk0HB7bV_1fN9KY6I';
 
-let LISTINGS = [];  // populated by loadListings() at startup
+let LISTINGS = [];           // current view (filtered server-side by seen state)
+let viewMode = 'unseen';     // 'unseen' or 'seen' — toggle in filter bar
+let countUnseen = null;      // total unseen in DB
+let countSeen = null;        // total seen in DB
 
 const FALLBACK_LISTINGS = [
   {n:1,nh:"Al-Narjis",nhAr:"النرجس",t:"Townhouse Villa",tAr:"فيلا تاون هاوس",p:1550000,br:4,ba:4,c:"New",m:"Yes",fs:5,f:"Two-unit villa · 212m + 242m · 3 floors",fAr:"فيلا بوحدتين · 212م + 242م · ثلاثة أدوار",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-النرجس/شارع-الشرق-حي-النرجس-مدينة-الرياض-منطقة-الرياض-6617433",srcType:"aqar"},
@@ -798,6 +872,8 @@ const I18N = {
     "footer.about.text":"A personal house search built around end-of-year-2026 purchase with REDF financing. Data compiled from Aqar.fm, Bayut, Wasalt, Property Finder, Rakez, and Clusters in May 2026. Listings refresh frequently — click through to verify current availability.",
     "footer.sources.title":"Sources","footer.financing.title":"Financing","footer.credit":"A personal project · 2026",
     "card.view.aqar":"View listing on Aqar","card.view.project":"View developer project","card.maid.yes":"Maid's room","card.maid.verify":"Verify maid's room",
+    "card.mark.seen":"Seen","card.mark.unseen":"Unsee",
+    "inbox.unseen":"Unseen","inbox.seen":"Seen",
     "ptr.pull":"Pull to refresh","ptr.release":"Release to refresh","ptr.refreshing":"Refreshing…","ptr.done":"Updated",
     "band.safe":"SAFE","band.stretch":"STRETCH","band.tight":"TIGHT"
   },
@@ -819,6 +895,8 @@ const I18N = {
     "footer.about.text":"بحث شخصي عن منزل بهدف الشراء قبل نهاية عام ٢٠٢٦ بتمويل صندوق التنمية العقاري. البيانات مجمّعة من عقار وبيوت ووصلت وبروبرتي فايندر وراكز وكلسترز في مايو ٢٠٢٦. العروض تتغير باستمرار — افتح الرابط للتحقق من التوفّر.",
     "footer.sources.title":"المصادر","footer.financing.title":"التمويل","footer.credit":"مشروع شخصي · ٢٠٢٦",
     "card.view.aqar":"عرض الإعلان على عقار","card.view.project":"عرض مشروع المطور","card.maid.yes":"غرفة خادمة","card.maid.verify":"تأكيد غرفة الخادمة",
+    "card.mark.seen":"تمت رؤيته","card.mark.unseen":"إلغاء",
+    "inbox.unseen":"لم يُشاهد","inbox.seen":"مشاهد",
     "ptr.pull":"اسحب للتحديث","ptr.release":"اترك للتحديث","ptr.refreshing":"جارٍ التحديث…","ptr.done":"تم التحديث",
     "band.safe":"آمن","band.stretch":"محتمل","band.tight":"حد أقصى"
   }
@@ -896,10 +974,15 @@ function renderListings() {
           ${l.m === 'No' ? '<span></span>' : `<span class="maid ${l.m.toLowerCase()}">${l.m === 'Yes' ? t['card.maid.yes'] : t['card.maid.verify']}</span>`}
           <span class="fit"><span class="stars">${stars(l.fs)}</span></span>
         </div>
-        <a class="view-link" href="${l.src}" target="_blank" rel="noopener">
-          <span>${l.srcType === 'project' ? t['card.view.project'] : t['card.view.aqar']}</span>
-          <span class="arrow">${isAr ? '←' : '→'}</span>
-        </a>
+        <div class="actions">
+          <a class="view-link" href="${l.src}" target="_blank" rel="noopener">
+            <span>${l.srcType === 'project' ? t['card.view.project'] : t['card.view.aqar']}</span>
+            <span class="arrow">${isAr ? '←' : '→'}</span>
+          </a>
+          <button class="seen-btn ${viewMode === 'seen' ? 'unseen-btn' : ''}" data-seen-btn="${l.id}" data-is-seen="${viewMode === 'seen' ? '1' : '0'}">
+            ${viewMode === 'seen' ? t['card.mark.unseen'] : t['card.mark.seen']}
+          </button>
+        </div>
       </article>`;
   }).join('');
 
@@ -979,6 +1062,36 @@ document.querySelectorAll('[data-lang-btn]').forEach(b => {
 });
 
 // ===== Boot =====
+async function sbFetch(path, opts={}) {
+  return fetch(`${SUPABASE_URL}${path}`, {
+    ...opts,
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      Accept: 'application/json',
+      ...(opts.headers||{})
+    }
+  });
+}
+
+async function loadCounts() {
+  try {
+    const [un, sn] = await Promise.all([
+      sbFetch('/rest/v1/listings?active=eq.true&seen_at=is.null&select=id', {headers:{Prefer:'count=exact'}, method:'HEAD'}),
+      sbFetch('/rest/v1/listings?active=eq.true&seen_at=not.is.null&select=id', {headers:{Prefer:'count=exact'}, method:'HEAD'})
+    ]);
+    const parse = r => parseInt((r.headers.get('content-range')||'/0').split('/')[1]) || 0;
+    countUnseen = parse(un);
+    countSeen = parse(sn);
+  } catch (e) {
+    countUnseen = null; countSeen = null;
+  }
+  const cU = document.getElementById('cnt-unseen');
+  const cS = document.getElementById('cnt-seen');
+  if (cU) cU.textContent = countUnseen ?? '—';
+  if (cS) cS.textContent = countSeen ?? '—';
+}
+
 async function loadListings() {
   const grid = document.getElementById('listings');
   grid.innerHTML = `
@@ -987,19 +1100,15 @@ async function loadListings() {
       <div style="font-size:13px">Fetching latest listings from database…</div>
     </div>`;
   try {
-    const url = `${SUPABASE_URL}/rest/v1/listings?active=eq.true&select=*&order=fit_score.desc,price.asc`;
-    const res = await fetch(url, {
-      headers: {
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-        Accept: 'application/json'
-      }
-    });
+    const seenFilter = viewMode === 'seen' ? 'seen_at=not.is.null' : 'seen_at=is.null';
+    const sortBy = viewMode === 'seen' ? 'seen_at.desc' : 'fit_score.desc,price.asc';
+    const url = `/rest/v1/listings?active=eq.true&${seenFilter}&select=*&order=${sortBy}`;
+    const res = await sbFetch(url);
     if (!res.ok) throw new Error('Supabase ' + res.status);
     const rows = await res.json();
-    if (!Array.isArray(rows) || rows.length === 0) throw new Error('empty');
     LISTINGS = rows.map((row, i) => ({
       n: i + 1,
+      id: row.id,
       nh: row.neighborhood_en,
       nhAr: row.neighborhood_ar,
       t: row.property_type_en,
@@ -1013,15 +1122,68 @@ async function loadListings() {
       f: row.features_en || '',
       fAr: row.features_ar || '',
       src: row.source_url,
-      srcType: row.source_type
+      srcType: row.source_type,
+      seenAt: row.seen_at
     }));
+    loadCounts(); // refresh counters in background
     return true;
   } catch (e) {
     console.warn('Supabase fetch failed, using fallback bundled data:', e);
-    LISTINGS = FALLBACK_LISTINGS.slice();
+    if (viewMode === 'unseen') LISTINGS = FALLBACK_LISTINGS.map((l,i)=>({...l, id: i+1, seenAt: null}));
+    else LISTINGS = [];
     return false;
   }
 }
+
+async function toggleSeen(listingId, currentlySeen) {
+  const newSeenAt = currentlySeen ? null : new Date().toISOString();
+  try {
+    const r = await sbFetch(`/rest/v1/listings?id=eq.${listingId}`, {
+      method: 'PATCH',
+      headers: {'Content-Type':'application/json','Prefer':'return=minimal'},
+      body: JSON.stringify({seen_at: newSeenAt})
+    });
+    if (!r.ok) throw new Error('PATCH ' + r.status);
+    // Animate card out, then remove from local list and re-render
+    const card = document.querySelector(`[data-seen-btn="${listingId}"]`)?.closest('.card');
+    if (card) card.classList.add('fade-out');
+    setTimeout(() => {
+      LISTINGS = LISTINGS.filter(l => l.id !== listingId);
+      // Update counters locally for instant feedback
+      if (currentlySeen) { countSeen = Math.max(0, (countSeen||0) - 1); countUnseen = (countUnseen||0) + 1; }
+      else { countUnseen = Math.max(0, (countUnseen||0) - 1); countSeen = (countSeen||0) + 1; }
+      const cU = document.getElementById('cnt-unseen');
+      const cS = document.getElementById('cnt-seen');
+      if (cU) cU.textContent = countUnseen ?? '—';
+      if (cS) cS.textContent = countSeen ?? '—';
+      renderListings();
+    }, 320);
+  } catch (e) {
+    console.error('Toggle seen failed', e);
+  }
+}
+
+function switchView(mode) {
+  if (mode === viewMode) return;
+  viewMode = mode;
+  document.querySelectorAll('[data-inbox-btn]').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-inbox-btn') === mode);
+  });
+  loadListings().then(() => { renderListings(); updateStats(); });
+}
+
+// Delegate clicks for seen buttons (works after re-render)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('[data-seen-btn]');
+  if (btn) {
+    const id = parseInt(btn.getAttribute('data-seen-btn'));
+    const isSeen = btn.getAttribute('data-is-seen') === '1';
+    toggleSeen(id, isSeen);
+    return;
+  }
+  const ib = e.target.closest('[data-inbox-btn]');
+  if (ib) switchView(ib.getAttribute('data-inbox-btn'));
+});
 
 function toArNum(s) {
   const map = '٠١٢٣٤٥٦٧٨٩٫';
