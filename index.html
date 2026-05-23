@@ -601,7 +601,7 @@
   </div>
   <div class="stat-cell">
     <div class="label" data-i18n="stats.neighborhoods">Neighborhoods</div>
-    <div class="value">6</div>
+    <div class="value" id="stat-neighborhoods">6</div>
     <div class="unit" data-i18n="stats.districts">districts</div>
   </div>
   <div class="stat-cell">
@@ -699,11 +699,15 @@
 </footer>
 
 <script>
-// Each card's `src` is either a direct Aqar.fm listing URL (sourceType:"aqar") — these are real share links
-// to specific properties — or a developer project page (sourceType:"project"). Verified against Aqar inventory on 2026-05-22.
-// 8 originally-planned neighborhoods (Al-Nuzhah, Al-Mughrazat, Al-Rabi, Al-Wadi, Al-Izdihar, Al-Sahafa)
-// were dropped because they have zero villa/townhouse/penthouse inventory under 2M SAR on Aqar today.
-const LISTINGS = [
+// ===== Supabase config =====
+// Listings now live in Supabase Postgres, fed by an automated Aqar crawler that runs Mon/Wed/Fri.
+// Use the anon (public) key — RLS policies enforce read-only-for-public + insert-only-from-crawler.
+const SUPABASE_URL = 'https://rktlkofaoiwpfysplukg.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrdGxrb2Zhb2l3cGZ5c3BsdWtnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MzU2NDMsImV4cCI6MjA5NTExMTY0M30.VlBMDdGeJQZ5wQkFmhhIrWVhgxYk0HB7bV_1fN9KY6I';
+
+let LISTINGS = [];  // populated by loadListings() at startup
+
+const FALLBACK_LISTINGS = [
   {n:1,nh:"Al-Narjis",nhAr:"النرجس",t:"Townhouse Villa",tAr:"فيلا تاون هاوس",p:1550000,br:4,ba:4,c:"New",m:"Yes",fs:5,f:"Two-unit villa · 212m + 242m · 3 floors",fAr:"فيلا بوحدتين · 212م + 242م · ثلاثة أدوار",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-النرجس/شارع-الشرق-حي-النرجس-مدينة-الرياض-منطقة-الرياض-6617433",srcType:"aqar"},
   {n:2,nh:"Al-Narjis",nhAr:"النرجس",t:"Townhouse",tAr:"تاون هاوس",p:1689000,br:4,ba:4,c:"New",m:"Yes",fs:5,f:"Al-Narjis Clusters project · 56% sold",fAr:"مشروع الكلسترز بحي النرجس · 56% مبيع",src:"https://clusters.sa/en/projects/alnarjis-clusters",srcType:"project"},
   {n:3,nh:"Al-Narjis",nhAr:"النرجس",t:"Townhouse Villa",tAr:"فيلا تاون هاوس",p:1850000,br:4,ba:4,c:"New",m:"Yes",fs:5,f:"On St. 559 · near services",fAr:"شارع رقم 559 · قريب من الخدمات",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-النرجس/شارع-رقم-559-حي-النرجس-مدينة-الرياض-منطقة-الرياض-6621297",srcType:"aqar"},
@@ -903,13 +907,9 @@ function applyLang(lang) {
     b.classList.toggle('active', b.getAttribute('data-lang-btn') === lang);
   });
 
-  // Stats
-  document.getElementById('stat-min').textContent = isAr ? '١٫٥٥' : '1.55M';
-  document.getElementById('stat-max').textContent = isAr ? '٢٫١٠' : '2.10M';
-  document.getElementById('stat-count').textContent = isAr ? '١٥' : '15';
-
   populateFilters();
   renderListings();
+  updateStats();
 }
 
 document.querySelectorAll('[data-lang-btn]').forEach(b => {
@@ -923,8 +923,74 @@ document.querySelectorAll('[data-lang-btn]').forEach(b => {
   });
 });
 
-// Init
-applyLang('en');
+// ===== Boot =====
+async function loadListings() {
+  const grid = document.getElementById('listings');
+  grid.innerHTML = `
+    <div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--text-dim)">
+      <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-faint);margin-bottom:12px">Loading</div>
+      <div style="font-size:13px">Fetching latest listings from database…</div>
+    </div>`;
+  try {
+    const url = `${SUPABASE_URL}/rest/v1/listings?active=eq.true&select=*&order=fit_score.desc,price.asc`;
+    const res = await fetch(url, {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        Accept: 'application/json'
+      }
+    });
+    if (!res.ok) throw new Error('Supabase ' + res.status);
+    const rows = await res.json();
+    if (!Array.isArray(rows) || rows.length === 0) throw new Error('empty');
+    LISTINGS = rows.map((row, i) => ({
+      n: i + 1,
+      nh: row.neighborhood_en,
+      nhAr: row.neighborhood_ar,
+      t: row.property_type_en,
+      tAr: row.property_type_ar,
+      p: row.price,
+      br: row.bedrooms,
+      ba: row.bathrooms,
+      c: row.condition_en,
+      m: row.maid_room,
+      fs: row.fit_score,
+      f: row.features_en || '',
+      fAr: row.features_ar || '',
+      src: row.source_url,
+      srcType: row.source_type
+    }));
+    return true;
+  } catch (e) {
+    console.warn('Supabase fetch failed, using fallback bundled data:', e);
+    LISTINGS = FALLBACK_LISTINGS.slice();
+    return false;
+  }
+}
+
+function toArNum(s) {
+  const map = '٠١٢٣٤٥٦٧٨٩٫';
+  return String(s).replace(/[0-9.]/g, d => map['0123456789.'.indexOf(d)]);
+}
+
+function updateStats() {
+  if (!LISTINGS.length) return;
+  const isAr = currentLang === 'ar';
+  const prices = LISTINGS.map(l => l.p);
+  const min = (Math.min(...prices) / 1000000).toFixed(2);
+  const max = (Math.max(...prices) / 1000000).toFixed(2);
+  const count = LISTINGS.length;
+  const neigh = new Set(LISTINGS.map(l => l.nh)).size;
+  document.getElementById('stat-min').textContent = isAr ? toArNum(min) : min + 'M';
+  document.getElementById('stat-max').textContent = isAr ? toArNum(max) : max + 'M';
+  document.getElementById('stat-count').textContent = isAr ? toArNum(count) : count;
+  document.getElementById('stat-neighborhoods').textContent = isAr ? toArNum(neigh) : neigh;
+}
+
+(async () => {
+  await loadListings();
+  applyLang('en');
+})();
 </script>
 
 </body>
