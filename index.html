@@ -685,6 +685,9 @@
     color: var(--red);
     background: rgba(255, 107, 107, 0.12);
   }
+  .card .change-pill.stale {
+    opacity: 0.55;
+  }
 
   /* PULL TO REFRESH */
   .ptr {
@@ -1171,16 +1174,20 @@ function renderListings() {
         <h3>${isAr ? l.nhAr : l.nh}</h3>
         <div class="neigh">${isAr ? l.tAr : l.t} · ${isAr ? l.fAr : l.f}</div>
         <div class="price">${fmtPrice(l.p)}<span class="price-currency">${isAr ? 'مليون ريال' : 'M SAR'}</span>${(() => {
-          // Per-card price change badge: show if previousPrice exists AND change is within last 14 days
-          if (!l.previousPrice || !l.priceChangedAt) return '';
-          const days = (Date.now() - new Date(l.priceChangedAt).getTime()) / (1000 * 60 * 60 * 24);
-          if (days > 14) return '';
+          // Per-card price change badge: show any detected change (no time limit)
+          if (!l.previousPrice) return '';
           const diff = l.p - l.previousPrice;
           const pct = (diff / l.previousPrice) * 100;
           if (Math.abs(pct) < 0.5) return '';
           const isDrop = diff < 0;
+          const days = l.priceChangedAt ? Math.floor((Date.now() - new Date(l.priceChangedAt).getTime()) / 86400000) : null;
+          const recent = days !== null && days <= 14;
+          // Recent changes use bold color; older changes use a 'stale' style
+          const cls = (isDrop ? 'drop' : 'rise') + (recent ? '' : ' stale');
+          const fmt = n => Number(n).toLocaleString(isAr ? 'ar-SA' : 'en-US');
+          const tooltipPrev = (isAr ? 'كان: ' : 'was ') + fmt(l.previousPrice);
           const txt = (isDrop ? '▼ ' : '▲ +') + Math.abs(pct).toFixed(1) + '%';
-          return `<span class="change-pill ${isDrop ? 'drop' : 'rise'}">${txt}</span>`;
+          return `<span class="change-pill ${cls}" title="${tooltipPrev}">${txt}</span>`;
         })()}</div>
         <div class="price-band ${band}">${bandLabel}</div>
         <div class="specs">
