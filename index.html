@@ -523,6 +523,169 @@
   /* HIDDEN */
   .hidden { display: none !important; }
 
+  /* TRENDS SECTION */
+  .trends {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 56px 32px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .trends .section-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .trends h2 {
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+  .trends-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    margin-bottom: 32px;
+  }
+  .trend-cell {
+    background: var(--bg);
+    padding: 28px 24px;
+    position: relative;
+  }
+  .trend-cell .trend-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 12px;
+  }
+  .trend-cell .trend-value {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .trend-cell .trend-unit {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 8px;
+  }
+  .trend-cell.is-drop .trend-value { color: var(--green); }
+  .trend-cell.is-rise .trend-value { color: var(--red); }
+  .trend-arrow {
+    display: inline-block;
+    font-size: 18px;
+    margin-inline-end: 4px;
+    vertical-align: -1px;
+  }
+
+  /* Recent changes list */
+  .changes-list h3 {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .changes-rows {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .change-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    background: var(--bg-elev);
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color 0.2s, transform 0.15s;
+  }
+  .change-row:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-1px);
+  }
+  .change-row .change-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .change-row .change-neigh {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .change-row .change-prices {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .change-row .change-prices .old-price {
+    text-decoration: line-through;
+    color: var(--text-faint);
+  }
+  .change-row .change-prices .arrow-sep {
+    margin: 0 6px;
+    color: var(--text-faint);
+  }
+  .change-row .change-badge {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .change-row .change-badge.drop {
+    color: var(--green);
+    background: rgba(95, 209, 151, 0.12);
+  }
+  .change-row .change-badge.rise {
+    color: var(--red);
+    background: rgba(255, 107, 107, 0.12);
+  }
+  .changes-empty {
+    text-align: center;
+    padding: 28px 20px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+  }
+
+  /* Per-card price-change badge */
+  .card .change-pill {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 999px;
+    margin-inline-start: 8px;
+    vertical-align: 2px;
+  }
+  .card .change-pill.drop {
+    color: var(--green);
+    background: rgba(95, 209, 151, 0.12);
+  }
+  .card .change-pill.rise {
+    color: var(--red);
+    background: rgba(255, 107, 107, 0.12);
+  }
+
   /* PULL TO REFRESH */
   .ptr {
     position: fixed;
@@ -601,6 +764,15 @@
     .stat-cell .value { font-size: 28px; }
     .stat-cell .unit { font-size: 12px; }
     .stat-cell .label { font-size: 9px; margin-bottom: 8px; }
+
+    .trends { padding: 40px 16px 24px; }
+    .trends h2 { font-size: clamp(24px, 5.5vw, 36px); margin-bottom: 24px; }
+    .trends-grid { grid-template-columns: repeat(2, 1fr); gap: 1px; margin-bottom: 24px; }
+    .trend-cell { padding: 20px 16px; }
+    .trend-cell .trend-value { font-size: 24px; }
+    .trend-cell .trend-label { font-size: 9px; }
+    .change-row { padding: 12px 14px; flex-direction: column; align-items: flex-start; gap: 8px; }
+    .change-row .change-badge { font-size: 12px; }
 
     .filter-section { padding: 40px 16px 24px; }
     .filter-section h2 { font-size: clamp(24px, 5.5vw, 36px); margin-bottom: 24px; }
@@ -736,8 +908,39 @@
   </div>
 </section>
 
+<section class="trends" id="trends">
+  <div class="section-eyebrow" data-i18n="trends.eyebrow">01 · PRICE TRENDS</div>
+  <h2 data-i18n="trends.title">Market pulse.</h2>
+  <div class="trends-grid">
+    <div class="trend-cell is-drop">
+      <div class="trend-label" data-i18n="trends.drops">Drops · 7 days</div>
+      <div class="trend-value"><span class="trend-arrow">▼</span><span id="trend-drops">—</span></div>
+      <div class="trend-unit" data-i18n="trends.listings">listings</div>
+    </div>
+    <div class="trend-cell is-rise">
+      <div class="trend-label" data-i18n="trends.rises">Rises · 7 days</div>
+      <div class="trend-value"><span class="trend-arrow">▲</span><span id="trend-rises">—</span></div>
+      <div class="trend-unit" data-i18n="trends.listings">listings</div>
+    </div>
+    <div class="trend-cell">
+      <div class="trend-label" data-i18n="trends.avg">Avg active price</div>
+      <div class="trend-value" id="trend-avg">—</div>
+      <div class="trend-unit" data-i18n="trends.sar">SAR</div>
+    </div>
+    <div class="trend-cell">
+      <div class="trend-label" data-i18n="trends.bigdrop">Biggest drop</div>
+      <div class="trend-value" id="trend-bigdrop">—</div>
+      <div class="trend-unit" data-i18n="trends.thisweek">this week</div>
+    </div>
+  </div>
+  <div class="changes-list">
+    <h3 data-i18n="trends.recent">Recent price changes</h3>
+    <ul class="changes-rows" id="changes-rows"></ul>
+  </div>
+</section>
+
 <section class="filter-section">
-  <div class="section-eyebrow" data-i18n="filter.eyebrow">01 · FILTERS</div>
+  <div class="section-eyebrow" data-i18n="filter.eyebrow">02 · FILTERS</div>
   <h2 data-i18n="filter.title">Find your house.</h2>
   <div class="filters">
     <div class="filter-group">
@@ -834,6 +1037,7 @@ let LISTINGS = [];           // current view (filtered server-side by seen state
 let viewMode = 'unseen';     // 'unseen' or 'seen' — toggle in filter bar
 let countUnseen = null;      // total unseen in DB
 let countSeen = null;        // total seen in DB
+let PRICE_CHANGES = [];      // recent price changes (last 7 days)
 
 const FALLBACK_LISTINGS = [
   {n:1,nh:"Al-Narjis",nhAr:"النرجس",t:"Townhouse Villa",tAr:"فيلا تاون هاوس",p:1550000,br:4,ba:4,c:"New",m:"Yes",fs:5,f:"Two-unit villa · 212m + 242m · 3 floors",fAr:"فيلا بوحدتين · 212م + 242م · ثلاثة أدوار",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-النرجس/شارع-الشرق-حي-النرجس-مدينة-الرياض-منطقة-الرياض-6617433",srcType:"aqar"},
@@ -875,6 +1079,11 @@ const I18N = {
     "card.view.aqar":"View listing on Aqar","card.view.project":"View developer project","card.maid.yes":"Maid's room","card.maid.verify":"Verify maid's room",
     "card.mark.seen":"Seen","card.mark.unseen":"Unsee",
     "inbox.unseen":"Unseen","inbox.seen":"Seen",
+    "trends.eyebrow":"01 · PRICE TRENDS","trends.title":"Market pulse.",
+    "trends.drops":"Drops · 7 days","trends.rises":"Rises · 7 days",
+    "trends.avg":"Avg active price","trends.bigdrop":"Biggest drop",
+    "trends.listings":"listings","trends.sar":"SAR","trends.thisweek":"this week",
+    "trends.recent":"Recent price changes","trends.empty":"No price changes recorded yet — check back after the next crawl.",
     "ptr.pull":"Pull to refresh","ptr.release":"Release to refresh","ptr.refreshing":"Refreshing…","ptr.done":"Updated",
     "band.safe":"SAFE","band.stretch":"STRETCH","band.tight":"TIGHT"
   },
@@ -898,6 +1107,11 @@ const I18N = {
     "card.view.aqar":"عرض الإعلان على عقار","card.view.project":"عرض مشروع المطور","card.maid.yes":"غرفة خادمة","card.maid.verify":"تأكيد غرفة الخادمة",
     "card.mark.seen":"تمت رؤيته","card.mark.unseen":"إلغاء",
     "inbox.unseen":"لم يُشاهد","inbox.seen":"مشاهد",
+    "trends.eyebrow":"٠١ · مؤشرات الأسعار","trends.title":"نبض السوق.",
+    "trends.drops":"انخفاضات · ٧ أيام","trends.rises":"ارتفاعات · ٧ أيام",
+    "trends.avg":"متوسط السعر النشط","trends.bigdrop":"أكبر انخفاض",
+    "trends.listings":"إعلانات","trends.sar":"ريال","trends.thisweek":"هذا الأسبوع",
+    "trends.recent":"آخر تغيرات الأسعار","trends.empty":"لم يتم تسجيل تغييرات أسعار بعد — تحقق بعد الجولة القادمة.",
     "ptr.pull":"اسحب للتحديث","ptr.release":"اترك للتحديث","ptr.refreshing":"جارٍ التحديث…","ptr.done":"تم التحديث",
     "band.safe":"آمن","band.stretch":"محتمل","band.tight":"حد أقصى"
   }
@@ -956,7 +1170,18 @@ function renderListings() {
         </div>
         <h3>${isAr ? l.nhAr : l.nh}</h3>
         <div class="neigh">${isAr ? l.tAr : l.t} · ${isAr ? l.fAr : l.f}</div>
-        <div class="price">${fmtPrice(l.p)}<span class="price-currency">${isAr ? 'مليون ريال' : 'M SAR'}</span></div>
+        <div class="price">${fmtPrice(l.p)}<span class="price-currency">${isAr ? 'مليون ريال' : 'M SAR'}</span>${(() => {
+          // Per-card price change badge: show if previousPrice exists AND change is within last 14 days
+          if (!l.previousPrice || !l.priceChangedAt) return '';
+          const days = (Date.now() - new Date(l.priceChangedAt).getTime()) / (1000 * 60 * 60 * 24);
+          if (days > 14) return '';
+          const diff = l.p - l.previousPrice;
+          const pct = (diff / l.previousPrice) * 100;
+          if (Math.abs(pct) < 0.5) return '';
+          const isDrop = diff < 0;
+          const txt = (isDrop ? '▼ ' : '▲ +') + Math.abs(pct).toFixed(1) + '%';
+          return `<span class="change-pill ${isDrop ? 'drop' : 'rise'}">${txt}</span>`;
+        })()}</div>
         <div class="price-band ${band}">${bandLabel}</div>
         <div class="specs">
           <div class="spec">
@@ -1051,6 +1276,7 @@ function applyLang(lang) {
   populateFilters();
   renderListings();
   updateStats();
+  renderTrends();
 }
 
 document.querySelectorAll('[data-lang-btn]').forEach(b => {
@@ -1075,6 +1301,64 @@ async function sbFetch(path, opts={}) {
       ...(opts.headers||{})
     }
   });
+}
+
+async function loadPriceChanges() {
+  try {
+    const r = await sbFetch('/rest/v1/recent_price_changes?select=*&order=pct_change.asc&limit=20');
+    if (!r.ok) return;
+    PRICE_CHANGES = await r.json();
+  } catch (e) {
+    console.warn('Failed to load price changes:', e);
+    PRICE_CHANGES = [];
+  }
+}
+
+function renderTrends() {
+  const isAr = currentLang === 'ar';
+  const t = I18N[currentLang];
+
+  // KPIs
+  const drops = PRICE_CHANGES.filter(c => c.price_diff < 0).length;
+  const rises = PRICE_CHANGES.filter(c => c.price_diff > 0).length;
+  const avgPrice = LISTINGS.length
+    ? Math.round(LISTINGS.reduce((s, l) => s + l.p, 0) / LISTINGS.length)
+    : 0;
+  const biggestDrop = PRICE_CHANGES.filter(c => c.price_diff < 0)[0]; // already sorted asc
+
+  document.getElementById('trend-drops').textContent = isAr ? toArNum(drops) : drops;
+  document.getElementById('trend-rises').textContent = isAr ? toArNum(rises) : rises;
+  const avgM = avgPrice ? (avgPrice / 1000000).toFixed(2) : '—';
+  document.getElementById('trend-avg').textContent = avgPrice ? (isAr ? toArNum(avgM) + 'م' : avgM + 'M') : '—';
+  document.getElementById('trend-bigdrop').textContent = biggestDrop
+    ? (isAr ? toArNum(biggestDrop.pct_change) + '%' : biggestDrop.pct_change + '%')
+    : '—';
+
+  // List
+  const rowsEl = document.getElementById('changes-rows');
+  if (!PRICE_CHANGES.length) {
+    rowsEl.innerHTML = `<li class="changes-empty">${t['trends.empty']}</li>`;
+    return;
+  }
+  rowsEl.innerHTML = PRICE_CHANGES.slice(0, 5).map(c => {
+    const drop = c.price_diff < 0;
+    const pct = c.pct_change;
+    const pctTxt = (drop ? '▼ ' : '▲ +') + Math.abs(pct).toFixed(1) + '%';
+    const nh = isAr ? c.neighborhood_ar : c.neighborhood_en;
+    const fmt = n => Number(n).toLocaleString(isAr ? 'ar-SA' : 'en-US');
+    return `
+      <a class="change-row" href="${c.source_url}" target="_blank" rel="noopener">
+        <div class="change-left">
+          <span class="change-neigh">${nh}</span>
+          <span class="change-prices">
+            <span class="old-price">${fmt(c.previous_price)}</span>
+            <span class="arrow-sep">→</span>
+            <span class="new-price">${fmt(c.current_price)} SAR</span>
+          </span>
+        </div>
+        <span class="change-badge ${drop ? 'drop' : 'rise'}">${pctTxt}</span>
+      </a>`;
+  }).join('');
 }
 
 async function loadCounts() {
@@ -1127,9 +1411,12 @@ async function loadListings() {
       src: row.source_url,
       srcType: row.source_type,
       seenAt: row.seen_at,
-      createdAt: row.created_at
+      createdAt: row.created_at,
+      previousPrice: row.previous_price,
+      priceChangedAt: row.price_changed_at
     }));
     loadCounts(); // refresh counters in background
+    loadPriceChanges().then(() => renderTrends()); // load trends in background
     return true;
   } catch (e) {
     console.warn('Supabase fetch failed, using fallback bundled data:', e);
