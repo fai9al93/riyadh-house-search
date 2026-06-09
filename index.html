@@ -745,6 +745,29 @@
     margin-bottom: 12px;
   }
 
+  /* Feature icons row (pool/garage/elevator/age) */
+  .card .features-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 10px 0 6px;
+  }
+  .card .feature-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    color: var(--ink-dim);
+    background: var(--bg-soft);
+    border: 1px solid var(--rule);
+    padding: 4px 8px;
+    border-radius: 999px;
+    text-transform: uppercase;
+  }
+  .card .feature-chip .icon { font-size: 12px; line-height: 1; }
+
   /* PULL TO REFRESH */
   .ptr {
     position: fixed;
@@ -1275,6 +1298,16 @@ function renderListings() {
             <div class="spec-value" style="font-size:11px">${l.c}</div>
           </div>
         </div>
+        ${(() => {
+          const chips = [];
+          if (l.hasPool) chips.push(`<span class="feature-chip"><span class="icon">🏊</span>${isAr ? 'مسبح' : 'Pool'}</span>`);
+          if (l.hasGarage) chips.push(`<span class="feature-chip"><span class="icon">🚗</span>${isAr ? 'كراج' : 'Garage'}</span>`);
+          if (l.hasElevator) chips.push(`<span class="feature-chip"><span class="icon">⬆️</span>${isAr ? 'مصعد' : 'Elevator'}</span>`);
+          if (l.hasBasement) chips.push(`<span class="feature-chip"><span class="icon">🏚️</span>${isAr ? 'بدروم' : 'Basement'}</span>`);
+          if (l.ageYears != null) chips.push(`<span class="feature-chip"><span class="icon">⏳</span>${isAr ? l.ageYears + ' سنة' : l.ageYears + 'y old'}</span>`);
+          if (l.floorsCount) chips.push(`<span class="feature-chip"><span class="icon">🏢</span>${isAr ? l.floorsCount + ' أدوار' : l.floorsCount + ' floors'}</span>`);
+          return chips.length ? `<div class="features-row">${chips.join('')}</div>` : '';
+        })()}
         <div class="meta">
           ${l.m === 'No' ? '<span></span>' : `<span class="maid ${l.m.toLowerCase()}">${l.m === 'Yes' ? t['card.maid.yes'] : t['card.maid.verify']}</span>`}
           <span class="fit"><span class="stars">${stars(l.fs)}</span></span>
@@ -1492,7 +1525,13 @@ async function loadListings() {
       createdAt: row.created_at,
       previousPrice: row.previous_price,
       priceChangedAt: row.price_changed_at,
-      imageUrl: row.image_url
+      imageUrl: row.image_url,
+      ageYears: row.age_years,
+      hasPool: row.has_pool,
+      hasGarage: row.has_garage,
+      hasElevator: row.has_elevator,
+      hasBasement: row.has_basement,
+      floorsCount: row.floors_count
     }));
     // Compute neighborhood medians for good-deal detection
     NEIGHBORHOOD_MEDIANS = {};
