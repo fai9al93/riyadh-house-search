@@ -689,6 +689,62 @@
     opacity: 0.55;
   }
 
+  /* Card image thumbnail */
+  .card .card-image {
+    margin: -28px -28px 18px;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: var(--bg-elev);
+    border-radius: 16px 16px 0 0;
+    position: relative;
+  }
+  .card .card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s;
+  }
+  .card:hover .card-image img {
+    transform: scale(1.04);
+  }
+  .card .card-image-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-faint);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  /* Good-deal badge — overlay on top of image */
+  .card .good-deal {
+    position: absolute;
+    top: 12px;
+    inset-inline-end: 12px;
+    background: linear-gradient(135deg, var(--accent), #ff8a3d);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 6px 12px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 14px rgba(255, 91, 31, 0.35);
+    z-index: 2;
+  }
+  /* Good-deal badge fallback when no image */
+  .card.no-image .good-deal {
+    position: static;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+
   /* PULL TO REFRESH */
   .ptr {
     position: fixed;
@@ -799,6 +855,8 @@
       gap: 16px;
     }
     .card { padding: 22px 20px; border-radius: 14px; }
+    .card .card-image { margin: -22px -20px 14px; border-radius: 14px 14px 0 0; }
+    .card .good-deal { top: 10px; inset-inline-end: 10px; font-size: 9px; padding: 5px 10px; }
     .card .card-head { margin-bottom: 18px; }
     .card h3 { font-size: 17px; }
     .card .neigh { font-size: 10px; margin-bottom: 18px; }
@@ -1041,6 +1099,7 @@ let viewMode = 'unseen';     // 'unseen' or 'seen' — toggle in filter bar
 let countUnseen = null;      // total unseen in DB
 let countSeen = null;        // total seen in DB
 let PRICE_CHANGES = [];      // recent price changes (last 7 days)
+let NEIGHBORHOOD_MEDIANS = {}; // median price per neighborhood (for good-deal detection)
 
 const FALLBACK_LISTINGS = [
   {n:1,nh:"Al-Narjis",nhAr:"النرجس",t:"Townhouse Villa",tAr:"فيلا تاون هاوس",p:1550000,br:4,ba:4,c:"New",m:"Yes",fs:5,f:"Two-unit villa · 212m + 242m · 3 floors",fAr:"فيلا بوحدتين · 212م + 242م · ثلاثة أدوار",src:"https://sa.aqar.fm/فلل-للبيع/الرياض/شمال-الرياض/حي-النرجس/شارع-الشرق-حي-النرجس-مدينة-الرياض-منطقة-الرياض-6617433",srcType:"aqar"},
@@ -1087,6 +1146,7 @@ const I18N = {
     "trends.avg":"Avg active price","trends.bigdrop":"Biggest drop",
     "trends.listings":"listings","trends.sar":"SAR","trends.thisweek":"this week",
     "trends.recent":"Recent price changes","trends.empty":"No price changes recorded yet — check back after the next crawl.",
+    "card.good_deal":"GOOD DEAL","card.no_image":"NO IMAGE",
     "ptr.pull":"Pull to refresh","ptr.release":"Release to refresh","ptr.refreshing":"Refreshing…","ptr.done":"Updated",
     "band.safe":"SAFE","band.stretch":"STRETCH","band.tight":"TIGHT"
   },
@@ -1115,6 +1175,7 @@ const I18N = {
     "trends.avg":"متوسط السعر النشط","trends.bigdrop":"أكبر انخفاض",
     "trends.listings":"إعلانات","trends.sar":"ريال","trends.thisweek":"هذا الأسبوع",
     "trends.recent":"آخر تغيرات الأسعار","trends.empty":"لم يتم تسجيل تغييرات أسعار بعد — تحقق بعد الجولة القادمة.",
+    "card.good_deal":"صفقة جيدة","card.no_image":"لا توجد صورة",
     "ptr.pull":"اسحب للتحديث","ptr.release":"اترك للتحديث","ptr.refreshing":"جارٍ التحديث…","ptr.done":"تم التحديث",
     "band.safe":"آمن","band.stretch":"محتمل","band.tight":"حد أقصى"
   }
@@ -1165,8 +1226,18 @@ function renderListings() {
     const band = priceBand(l.p);
     const bandLabel = t['band.' + band];
     const isAr = currentLang === 'ar';
+    // Good-deal detection: price < 90% of neighborhood median (need ≥3 listings in that neighborhood)
+    const median = NEIGHBORHOOD_MEDIANS[l.nh];
+    const isGoodDeal = median && l.p < median * 0.9 && l.srcType !== 'project';
+    const hasImage = !!l.imageUrl;
+    const imageBlock = hasImage
+      ? `<div class="card-image">${isGoodDeal ? `<span class="good-deal">💎 ${t['card.good_deal']}</span>` : ''}<img src="${l.imageUrl}" alt="" loading="lazy" onerror="this.parentElement.classList.add('failed'); this.style.display='none'"></div>`
+      : '';
+    const goodDealFallback = (!hasImage && isGoodDeal) ? `<span class="good-deal">💎 ${t['card.good_deal']}</span>` : '';
     return `
-      <article class="card">
+      <article class="card${hasImage ? '' : ' no-image'}">
+        ${imageBlock}
+        ${goodDealFallback}
         <div class="card-head">
           <span class="num">№ ${String(l.n).padStart(2,'0')}</span>
           <span class="type-badge">${isAr ? l.tAr : l.t}</span>
@@ -1420,8 +1491,19 @@ async function loadListings() {
       seenAt: row.seen_at,
       createdAt: row.created_at,
       previousPrice: row.previous_price,
-      priceChangedAt: row.price_changed_at
+      priceChangedAt: row.price_changed_at,
+      imageUrl: row.image_url
     }));
+    // Compute neighborhood medians for good-deal detection
+    NEIGHBORHOOD_MEDIANS = {};
+    const byNeigh = {};
+    LISTINGS.forEach(l => { (byNeigh[l.nh] = byNeigh[l.nh] || []).push(l.p); });
+    Object.entries(byNeigh).forEach(([nh, prices]) => {
+      if (prices.length < 3) return;
+      const sorted = [...prices].sort((a,b)=>a-b);
+      const mid = Math.floor(sorted.length / 2);
+      NEIGHBORHOOD_MEDIANS[nh] = sorted.length % 2 ? sorted[mid] : (sorted[mid-1] + sorted[mid]) / 2;
+    });
     loadCounts(); // refresh counters in background
     loadPriceChanges().then(() => renderTrends()); // load trends in background
     return true;
